@@ -1,4 +1,5 @@
 ﻿using AsyncOAuth;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,13 +54,23 @@ namespace WithingsTest.Controllers
             var accessTokens = accessTokenResponse.Token;
 
             string userId = Request.QueryString["userid"]; //todo: Find out how to assign the real user id from OAuth call
-         
+
+            
 
             var client = OAuthUtility.CreateOAuthClient(consumerKey, consumerSecret, new AccessToken("accessToken", "accessTokenSecret"));
-            string requestUri = "https://wbsapi.withings.net/v2/measure?action=getactivity/userid= " + userId;
+
+            client.BaseAddress = new Uri(Request.Url.GetLeftPart(UriPartial.Authority));
+            client.BaseAddress = new System.Uri ("https://wbsapi.withings.net/");
+            string withingsMeasureApiUrl = "v2/measure?action=getactivity/userid= ";
+
+            string requestUri = client.BaseAddress + withingsMeasureApiUrl + userId;
             string json = await client.GetStringAsync(requestUri);
-            ViewBag.json = "JsonData";
-            return View("AccessTokenFlow");  
+
+            string serializedResult = JsonConvert.SerializeObject(json);
+          
+            ViewBag.serializedResult = "JsonData";
+            return View("AccessTokenFlow");
+           
         }
     }   
 }
