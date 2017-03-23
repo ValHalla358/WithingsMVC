@@ -58,7 +58,7 @@ namespace WithingsTest.Controllers
             var client = OAuthUtility.CreateOAuthClient(consumerKey, consumerSecret, new AccessToken("accessToken", "accessTokenSecret"));
             string requestUri = "https://wbsapi.withings.net/v2/measure?action=getactivity/userid= " + userId;
             string json = await client.GetStringAsync(requestUri);
-
+            ViewBag.json = "JsonData";
             return View("AccessTokenFlow");  
         }
     }   
