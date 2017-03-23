@@ -19,98 +19,105 @@ namespace WithingsTest.Controllers
 
         private string consumerKey = "8ecb6d91d1ee66d5c3696c0c803197ed9e8cdff332ff40d5f964430ce9d1";
 
-        // RNGCryptoServiceProvider is thread safe in .NET 3.5 and above
-        // .NET 3.0 and below will need locking to protect access
-        private static readonly RNGCryptoServiceProvider random =
-            new RNGCryptoServiceProvider();
-        private int length;
+        //// RNGCryptoServiceProvider is thread safe in .NET 3.5 and above
+        //// .NET 3.0 and below will need locking to protect access
+        //private static readonly RNGCryptoServiceProvider random =
+        //    new RNGCryptoServiceProvider();
+        //private int length;
 
-        public /*virtual*/ string GenerateNonce(int length)
-        {
-            var data = new byte[length];
-            random.GetNonZeroBytes(data);
-            string nonceData = Convert.ToBase64String(data);
-            return nonceData;
+        //public /*virtual*/ string GenerateNonce(int length)
+        //{
+        //    var data = new byte[length];
+        //    random.GetNonZeroBytes(data);
+        //    string nonceData = Convert.ToBase64String(data);
+        //    return nonceData;
 
-        }
+        //}
+        //public string GenerateTimeStamp()
+        //{
+        //    TimeSpan ts = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0));
+        //    string timeStamp = ts.TotalSeconds.ToString();
+        //    timeStamp = timeStamp.Substring(0, timeStamp.IndexOf("."));
+        //    return timeStamp;
+        //}
 
+        //public class OAuthParameters
+        //{
+        //    public string RedirectUrl { get; set; }
 
-        public class OAuthParameters
-        {
-            public string RedirectUrl { get; set; }
+        //    public string ClientId { get; set; }
+        //    public string ClientSecret { get; set; }
 
-            public string ClientId { get; set; }
-            public string ClientSecret { get; set; }
+        //    protected string NormalizeParameters(SortedDictionary<string, string> parameters)
+        //    {
+        //        StringBuilder sb = new StringBuilder();
 
-            protected string NormalizeParameters(SortedDictionary<string, string> parameters)
-            {
-                StringBuilder sb = new StringBuilder();
+        //        var i = 0;
+        //        foreach (var parameter in parameters)
+        //        {
+        //            if (i > 0)
+        //                sb.Append("&");
 
-                var i = 0;
-                foreach (var parameter in parameters)
-                {
-                    if (i > 0)
-                        sb.Append("&");
+        //            sb.AppendFormat("{0}={1}", parameter.Key, parameter.Value);
 
-                    sb.AppendFormat("{0}={1}", parameter.Key, parameter.Value);
+        //            i++;
+        //        }
 
-                    i++;
-                }
+        //        return sb.ToString();
+        //    }
 
-                return sb.ToString();
-            }
+        //    private string GenerateBase(string nonce, string timeStamp, Uri url)
+        //    {
+        //        var parameters = new SortedDictionary<string, string>
+        //{
+        //    {"oauth_consumer_key", ClientId},
+        //    {"oauth_signature_method", "HMAC-SHA1"},
+        //    {"oauth_timestamp", timeStamp},
+        //    {"oauth_nonce", nonce},
+        //    {"oauth_version", "1.0"}
+        //};
 
-            private string GenerateBase(string nonce, string timeStamp, Uri url)
-            {
-                var parameters = new SortedDictionary<string, string>
-        {
-            {"oauth_consumer_key", ClientId},
-            {"oauth_signature_method", "HMAC-SHA1"},
-            {"oauth_timestamp", timeStamp},
-            {"oauth_nonce", nonce},
-            {"oauth_version", "1.0"}
-        };
+        //        var sb = new StringBuilder();
+        //        sb.Append("GET");
+        //        sb.Append("&" + Uri.EscapeDataString(url.AbsoluteUri));
+        //        sb.Append("&" + Uri.EscapeDataString(NormalizeParameters(parameters)));
+        //        return sb.ToString();
+        //    }
 
-                var sb = new StringBuilder();
-                sb.Append("GET");
-                sb.Append("&" + Uri.EscapeDataString(url.AbsoluteUri));
-                sb.Append("&" + Uri.EscapeDataString(NormalizeParameters(parameters)));
-                return sb.ToString();
-            }
+        //    public string GenerateSignature(string nonce, string timeStamp, Uri url)
+        //    {
+        //        var signatureBase = GenerateBase(nonce, timeStamp, url);
+        //        var signatureKey = string.Format("{0}&{1}", ClientSecret, "");
+        //        var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(signatureKey));
+        //        return Convert.ToBase64String(hmac.ComputeHash(new ASCIIEncoding().GetBytes(signatureBase)));
+        //    }
+        //}
+        //public string GetAuthorizationUrl(string Url)
+        //{
+        //    var sb = new StringBuilder();
+        //    var nonce = Guid.NewGuid().ToString();
+        //    var timeStamp = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds.ToString();
+        //    var signature = parameters.GenerateSignature(nonce, timeStamp, new Uri(Url));
 
-            public string GenerateSignature(string nonce, string timeStamp, Uri url)
-            {
-                var signatureBase = GenerateBase(nonce, timeStamp, url);
-                var signatureKey = string.Format("{0}&{1}", ClientId, "");
-                var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(signatureKey));
-                return Convert.ToBase64String(hmac.ComputeHash(new ASCIIEncoding().GetBytes(signatureBase)));
-            }
-        }
-        public string GetAuthorizationUrl(string Url)
-        {
-            var sb = new StringBuilder();
-            var nonce = Guid.NewGuid().ToString();
-            var timeStamp = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds.ToString();
-            var signature = parameters.GenerateSignature(nonce, timeStamp, new Uri(Url));
+        //    sb.Append(GenerateQueryStringOperator(sb.ToString()) + "oauth_consumer_key=" + Uri.EscapeDataString(parameters.ClientId));
+        //    sb.Append("&oauth_nonce=" + Uri.EscapeDataString(nonce));
+        //    sb.Append("&oauth_timestamp=" + Uri.EscapeDataString(timeStamp));
+        //    sb.Append("&oauth_signature_method=" + Uri.EscapeDataString("HMAC-SHA1"));
+        //    sb.Append("&oauth_version=" + Uri.EscapeDataString("1.0"));
+        //    sb.Append("&oauth_signature=" + Uri.EscapeDataString(signature));
 
-            sb.Append(GenerateQueryStringOperator(sb.ToString()) + "oauth_consumer_key=" + Uri.EscapeDataString(parameters.ClientId));
-            sb.Append("&oauth_nonce=" + Uri.EscapeDataString(nonce));
-            sb.Append("&oauth_timestamp=" + Uri.EscapeDataString(timeStamp));
-            sb.Append("&oauth_signature_method=" + Uri.EscapeDataString("HMAC-SHA1"));
-            sb.Append("&oauth_version=" + Uri.EscapeDataString("1.0"));
-            sb.Append("&oauth_signature=" + Uri.EscapeDataString(signature));
+        //    return Url + sb.ToString();
+        //}
 
-            return Url + sb.ToString();
-        }
+        //private string GenerateQueryStringOperator(string currentUrl)
+        //{
+        //    if (currentUrl.Contains("?"))
+        //        return "&";
+        //    else
+        //        return "?";
+        //}
 
-        private string GenerateQueryStringOperator(string currentUrl)
-        {
-            if (currentUrl.Contains("?"))
-                return "&";
-            else
-                return "?";
-        }
-
+        // Get
         // GET: CallBack
         public ActionResult Details(string verifier, string Token)
         {
@@ -148,38 +155,24 @@ namespace WithingsTest.Controllers
 
             int userId = Int32.Parse(Request.QueryString["userid"]); //todo: Find out how to assign the real user id from OAuth call
 
-            string nonceData = GenerateNonce(length);
-
-            string json = await GetActivityAsync(ViewBag.Response, userId, consumerKey, nonceData);
-
-
-            return View(json);
-        }
-
-        public async Task<string> GetActivityAsync(string dlc_content, int userId, string oauthConsumerKey, string nonceData)
-        {
            
-            string url = $"https://wbsapi.withings.net/v2/measure?action=getactivity&userId={userId}&oauth_consumer_key={oauthConsumerKey}&oauth_nonce={nonceData}";
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url.ToString());
 
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-            request.Method = "Get";
+           
 
+            var client = OAuthUtility.CreateOAuthClient("consumerKey", "consumerSecret", new AccessToken("accessToken", "accessTokenSecret"));
+            string json = await client.GetStringAsync("https://wbsapi.withings.net/v2/measure?action=getactivity");
 
-            using (WebResponse response = await request.GetResponseAsync())
-            {
-                using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
-                {
-                    string responseBody = streamReader.ReadToEnd();
+            //using (WebResponse response = await request.GetResponseAsync())
+            //{
+            //    using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+            //    {
+            //        string responseBody = streamReader.ReadToEnd();
 
-                    return responseBody;
-                }
-            }
+            //        return View(responseBody);
+            //    }
+            //}
+
+            return View(json);  
         }
-
-       
-
-
     }   
 }
