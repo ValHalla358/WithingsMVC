@@ -1,11 +1,13 @@
 ﻿using AsyncOAuth;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,16 +59,46 @@ namespace WithingsTest.Controllers
 
             
 
-            var client = OAuthUtility.CreateOAuthClient(consumerKey, consumerSecret, new AccessToken("accessToken", "accessTokenSecret"));
+            var client = OAuthUtility.CreateOAuthClient(consumerKey, consumerSecret, accessTokens);
 
-            client.BaseAddress = new Uri(Request.Url.GetLeftPart(UriPartial.Authority));
-            client.BaseAddress = new System.Uri ("https://wbsapi.withings.net/");
-            string withingsMeasureApiUrl = "v2/measure?action=getactivity/userid= ";
 
-            string requestUri = client.BaseAddress + withingsMeasureApiUrl + userId;
-            string json = await client.GetStringAsync(requestUri);
+            //string withingsDateApiUrl = "&date=";
 
-            string serializedResult = JsonConvert.SerializeObject(json);
+            //string withingsStartDateApiUrl = "&startdateymd=";
+
+            //string withingsEndDateApiUrl = "&enddateymd=";
+            //DateTime date = DateTime.Now;
+            //string dateFormat = date.ToString("yyyy-MM-dd");
+            //string startDateFormat = "2017-03-10";
+
+            //string endDateFormat = "2017-03-21";
+
+            // string dateFormat = "2017-03-13";
+
+            //string oauthenticator = "&"+consumerSecret+"&"+accessToken;
+            var oAuth_params = OAuthUtility.BuildBasicParameters(consumerKey, consumerSecret, "https://wbsapi.withings.net", HttpMethod.Get, accessTokens)
+                .Where(p => p.Key != "oauth_signature")
+                .OrderBy(p => p.Key);
+           
+
+            string requestUri = $"https://wbsapi.withings.net/measure?action=getmeas&userid={userId}&";
+
+            requestUri += string.Join("&", oAuth_params.Select(kvp => kvp.Key + "=" + kvp.Value));
+
+            var signature = OAuthUtility.BuildBasicParameters(consumerKey, consumerSecret, requestUri, HttpMethod.Get, accessTokens)
+                .First(p => p.Key == "oauth_signature").Value;
+
+            string json = await client.GetStringAsync(requestUri + "&oauth_signature=" + signature);
+
+            var o = JObject.Parse(json);
+
+            int updateTime = (int)o["body"]["updatetime"];
+
+            ViewBag.measureGroups = o["body"]["measuregrps"].Select(no => new
+            {
+                GroupId = no["grpid"],
+                Attrib = no["attrib"]
+            });
           
             ViewBag.serializedResult = "JsonData";
             return View("AccessTokenFlow");
